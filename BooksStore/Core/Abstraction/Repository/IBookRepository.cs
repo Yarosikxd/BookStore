@@ -7,7 +7,7 @@ namespace Core.Abstraction.Repository
         Task<Guid> CreateBookAsync(Book book);
         Task<Book> GetBookBuIdAsync(Guid bookId);
         Task<List<Book>> GetAllBooksAsync();
-        Task<Guid> UpdateBookAsync(Guid bookId, string author, int year, string description);
-        Task<Guid?> DeleteBookAsync(Guid bookId);
+        Task<Guid> UpdateBookAsync(Guid bookId, string title, string author, int year, string description);
+        Task<Guid> DeleteBookAsync(Guid bookId);
     }
 }

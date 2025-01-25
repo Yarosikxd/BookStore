@@ -4,13 +4,12 @@ using Infrastructure.Entities;
 
 namespace Infrastructure
 {
-    public class DataBaseMapping : Profile
+    public class DataBaseMappings : Profile
     {
-        public DataBaseMapping()
+        public DataBaseMappings()
         {
             CreateMap<UserEntity, User>();
             CreateMap<BookEntity, Book>();
         }
-
     }
 }

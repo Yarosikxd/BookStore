@@ -1,11 +1,12 @@
-﻿using Core.Abstraction.Services;
+﻿using Api.Contracts.Books;
+using Core.Abstraction.Services;
 using Core.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class BookController : ControllerBase
     {
         private readonly IBookService _service;
@@ -15,34 +16,68 @@ namespace Api.Controllers
             _service = service;
         }
 
-        public async Task<IActionResult> CreateBookAsync([FromBody] Book book)
+        [HttpGet("GetAllBooks")]
+        public async Task<IActionResult> GetAllBooksAsync()
         {
-            if (book == null)
-            {
-                return BadRequest("Book data is required.");
-            }
-
             try
             {
-                var bookId = await _service.CreateBookAsync(book);
-                return CreatedAtAction(nameof(GetBookByIdAsync), new { bookId }, book);
+                var books = await _service.GetAllBooksAsync();
+                return Ok(books);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, ex.Message);
             }
         }
 
-        [HttpGet("{bookId}")]
-        public async Task<IActionResult> GetBookByIdAsync(Guid bookId)
+        [HttpPost("CreateBook")]
+        public async Task<IActionResult> CreateBookAsync([FromBody] CreateBookRequest request )
         {
-            var book = await _service.GetBookBuIdAsync(bookId);
-            if (book == null)
+            try 
             {
-                return NotFound($"Book with ID {bookId} not found.");
-            }
+                var book = Book.Create(
+                    Guid.NewGuid(),
+                    request.Title,
+                    request.Author,
+                    request.Year,
+                    request.Description);
 
-            return Ok(book);
+                var bookId = await _service.CreateBookAsync(book);
+                return Ok(bookId);
+            }
+            catch (Exception ex) 
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
+
+        [HttpPut("UpdateBook {id}")]
+        public async Task<IActionResult> UpdateBookAsync(Guid id, UpdateBookRequest request)
+        {
+            try 
+            {
+                await _service.UpdateBookAsync( id, request.Title, request.Author, request.Year, request.Description);
+                return Ok();
+            }
+            catch (Exception ex) 
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpDelete("Delete{id}")]
+        public async Task<IActionResult> DeleteBookAsync(Guid id)
+        {
+            try
+            {
+                await _service.DeleteBookAsync(id);
+                return Ok();
+            }
+            catch (Exception ex) 
+            {
+                return StatusCode(500, ex.Message);   
+            }
+        }
+
     }
 }

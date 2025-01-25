@@ -42,12 +42,12 @@ namespace Infrastructure.Repositoryes
             }
         }
 
-        public async Task<Guid?> DeleteBookAsync(Guid bookId)
+        public async Task<Guid> DeleteBookAsync(Guid bookId)
         {
             try
             {
                 var bookEntity = await _context.Books.FindAsync(bookId);
-                if (bookEntity == null) 
+                if (bookEntity != null) 
                 {
                     _context.Books.Remove(bookEntity);
                     await _context.SaveChangesAsync();
@@ -93,13 +93,14 @@ namespace Infrastructure.Repositoryes
             }
         }
 
-        public async Task<Guid> UpdateBookAsync(Guid bookId, string author, int year, string description)
+        public async Task<Guid> UpdateBookAsync(Guid bookId, string title, string author, int year, string description)
         {
             try
             {
                 var bookEntity = await _context.Books.FindAsync(bookId);
-                if(bookEntity == null)
+                if(bookEntity != null)
                 {
+                    bookEntity.Title = title;
                     bookEntity.Author = author;
                     bookEntity.Description = description;
                     bookEntity.Year = year;

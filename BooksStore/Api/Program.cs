@@ -17,7 +17,7 @@ builder.Logging.ClearProviders();
 builder.Services.AddLogging();
 
 // 🔹 Реєстрація AutoMapper
-builder.Services.AddAutoMapper(typeof(DataBaseMapping));
+builder.Services.AddAutoMapper(typeof(DataBaseMappings));
 
 // 🔹 Додавання Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -27,7 +27,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
@@ -72,6 +74,7 @@ app.UseCookiePolicy(new CookiePolicyOptions
     HttpOnly = HttpOnlyPolicy.Always,
     Secure = CookieSecurePolicy.Always
 });
+
 
 // 🔹 Включаємо аутентифікацію та авторизацію
 app.UseAuthentication();

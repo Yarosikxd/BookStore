@@ -23,7 +23,7 @@ namespace Api.Endpoints
 
         private static async Task<IResult> Login(LoginUserRequest request, UserService userService, HttpContext context)
         {
-            var token = await userService.Login(request.Email, request.Passwors);
+            var token = await userService.Login(request.Email, request.Password);
 
             context.Response.Cookies.Append("tasty-cookies", token);
 

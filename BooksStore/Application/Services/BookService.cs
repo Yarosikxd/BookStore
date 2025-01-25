@@ -33,9 +33,9 @@ namespace Application.Services
            return await GetBookBuIdAsync(bookId);
         }
 
-        public async Task<Guid> UpdateBookAsync(Guid bookId, string author, int year, string description)
+        public async Task<Guid> UpdateBookAsync(Guid bookId, string title, string author, int year, string description)
         {
-            return await _repository.UpdateBookAsync(bookId, author, year, description);
+            return await _repository.UpdateBookAsync(bookId,title,  author, year, description);
         }
     }
 }

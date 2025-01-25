@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]/[action]")]
+    [Route("[controller]")]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _service;
@@ -16,12 +16,12 @@ namespace Api.Controllers
             _service = service;
         }
 
-        [HttpPost]
+        [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
         {
             try
             {
-                await _service.Register(request.UserName, request.Email, request.Password);
+                await _service.Register(request.UserName, request.Password, request.Email);
                 return Ok("User registered successfully");
             }
             catch (Exception ex)
@@ -30,12 +30,12 @@ namespace Api.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginUserRequest request)
         {
             try
             {
-                var token = await _service.Login(request.Email, request.Passwors);
+                var token = await _service.Login(request.Email, request.Password);
                 return Ok(token);
             }
             catch (Exception ex)

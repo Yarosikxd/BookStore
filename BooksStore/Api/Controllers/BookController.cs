@@ -1,12 +1,14 @@
 ﻿using Api.Contracts.Books;
 using Core.Abstraction.Services;
 using Core.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
     public class BookController : ControllerBase
     {
         private readonly IBookService _service;
@@ -30,6 +32,7 @@ namespace Api.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("CreateBook")]
         public async Task<IActionResult> CreateBookAsync([FromBody] CreateBookRequest request )
         {

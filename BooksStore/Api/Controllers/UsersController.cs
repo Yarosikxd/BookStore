@@ -1,7 +1,7 @@
 ﻿using Api.Contracts.Users;
 using Core.Abstraction.Services;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 
 namespace Api.Controllers
 {
@@ -21,7 +21,7 @@ namespace Api.Controllers
         {
             try
             {
-                await _service.Register(request.UserName, request.Password, request.Email);
+                await _service.Register(request.UserName, request.Email, request.Password);
                 return Ok("User registered successfully");
             }
             catch (Exception ex)
@@ -36,7 +36,17 @@ namespace Api.Controllers
             try
             {
                 var token = await _service.Login(request.Email, request.Password);
-                return Ok(token);
+
+                // Збереження токена у куки
+                Response.Cookies.Append("tasty-cookies", token, new CookieOptions
+                {
+                    HttpOnly = true, 
+                    Secure = true, 
+                    SameSite = SameSiteMode.Strict, 
+                    Expires = DateTimeOffset.UtcNow.AddDays(7) 
+                });
+
+                return Ok("Login successful");
             }
             catch (Exception ex)
             {

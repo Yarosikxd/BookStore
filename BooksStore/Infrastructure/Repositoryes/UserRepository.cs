@@ -24,9 +24,9 @@ namespace Infrastructure.Repositoryes
                 {
                     Id = user.Id,
                     Name = user.Name,
-                    PasswordHash = user.PasswordHash,
                     Email = user.Email,
-
+                    PasswordHash = user.PasswordHash,
+                    Role = user.Role,
                 };
 
                 await _context.Users.AddAsync(userEnriry);

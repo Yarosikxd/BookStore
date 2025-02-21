@@ -9,43 +9,51 @@ using Infrastructure.Repositoryes;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Diagnostics;
+using Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 🔹 Очистка логування та додавання нового логера
+// Налаштування логування
 builder.Logging.ClearProviders();
 builder.Services.AddLogging();
 
-// 🔹 Реєстрація AutoMapper
+// Додаємо AutoMapper для мапінгу моделей
 builder.Services.AddAutoMapper(typeof(DataBaseMappings));
 
-// 🔹 Додавання Swagger
-builder.Services.AddEndpointsApiExplorer();
+// Налаштування Swagger для документації API
 builder.Services.AddSwaggerGen();
 
-// 🔹 Реєстрація сервісів та репозиторіїв у DI-контейнері
+// Налаштування JWT
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
+
+// Реєстрація залежностей для роботи з репозиторіями та сервісами
 builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
-// 🔹 Реєстрація конфігурації JWT
-builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
+// Отримуємо налаштування JWT та перевіряємо їх
+var jwtOptions = builder.Configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>();
+if (jwtOptions == null || string.IsNullOrEmpty(jwtOptions.SecretKey))
+{
+    throw new ArgumentNullException("JwtOptions:SecretKey cannot be null or empty.");
+}
 
-// 🔹 Підключення бази даних через DbContext
+// Додаємо аутентифікацію через JWT
+builder.Services.AddApiAuthentication(jwtOptions);
+
+// Налаштування підключення до бази даних
 builder.Services.AddDbContext<DataBaseDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// 🔹 Додаємо підтримку контролерів
+// Додаємо контролери
 builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// 🔹 Вбудована обробка помилок замість Middleware
+// Обробка глобальних винятків
 app.UseExceptionHandler(errorApp =>
 {
     errorApp.Run(async context =>
@@ -60,14 +68,14 @@ app.UseExceptionHandler(errorApp =>
     });
 });
 
-// 🔹 Включаємо Swagger тільки в режимі розробки
+// Додаємо Swagger лише в режимі розробки
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// 🔹 Налаштування Cookie Policy
+// Налаштування політики використання кукі
 app.UseCookiePolicy(new CookiePolicyOptions
 {
     MinimumSameSitePolicy = SameSiteMode.Strict,
@@ -75,15 +83,15 @@ app.UseCookiePolicy(new CookiePolicyOptions
     Secure = CookieSecurePolicy.Always
 });
 
-
-// 🔹 Включаємо аутентифікацію та авторизацію
+// Включення аутентифікації та авторизації
 app.UseAuthentication();
 app.UseAuthorization();
 
-// 🔹 Включаємо HTTPS
+// Перенаправлення HTTP-запитів на HTTPS
 app.UseHttpsRedirection();
 
-// 🔹 Додаємо підтримку маршрутів
+// Маршрутизація контролерів
 app.MapControllers();
 
+// Запуск застосунку
 app.Run();
